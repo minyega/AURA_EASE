@@ -1,0 +1,25 @@
+service: () -> {
+    addAppointment: (record {status:text; date:text; time:text; service_id:text; client_id:text}) -> (variant {Ok:record {id:text; status:text; date:text; time:text; service_id:text; client_id:text}; Err:variant {PaymentFailed:text; InvalidPayload:text; NotFound:text; PaymentCompleted:text}});
+    addClient: (record {name:text; email:text; address:text; phone:text}) -> (variant {Ok:record {id:text; name:text; email:text; address:text; phone:text}; Err:variant {PaymentFailed:text; InvalidPayload:text; NotFound:text; PaymentCompleted:text}});
+    addService: (record {duration:nat64; name:text; description:text; price:nat64}) -> (variant {Ok:record {id:text; duration:nat64; name:text; description:text; price:nat64}; Err:variant {PaymentFailed:text; InvalidPayload:text; NotFound:text; PaymentCompleted:text}});
+    completeAppointment: (text) -> (variant {Ok:record {id:text; status:text; date:text; time:text; service_id:text; client_id:text}; Err:variant {PaymentFailed:text; InvalidPayload:text; NotFound:text; PaymentCompleted:text}});
+    deleteAppointment: (text) -> (variant {Ok:text; Err:variant {PaymentFailed:text; InvalidPayload:text; NotFound:text; PaymentCompleted:text}});
+    deleteClient: (text) -> (variant {Ok:text; Err:variant {PaymentFailed:text; InvalidPayload:text; NotFound:text; PaymentCompleted:text}});
+    deleteService: (text) -> (variant {Ok:text; Err:variant {PaymentFailed:text; InvalidPayload:text; NotFound:text; PaymentCompleted:text}});
+    getAddressFromPrincipal: (principal) -> (text) query;
+    getAppointment: (text) -> (variant {Ok:record {id:text; status:text; date:text; time:text; service_id:text; client_id:text}; Err:variant {PaymentFailed:text; InvalidPayload:text; NotFound:text; PaymentCompleted:text}}) query;
+    getAppointments: () -> (vec record {id:text; status:text; date:text; time:text; service_id:text; client_id:text}) query;
+    getAppointmentsByStatus: (text) -> (vec record {id:text; status:text; date:text; time:text; service_id:text; client_id:text}) query;
+    getClient: (text) -> (variant {Ok:record {id:text; name:text; email:text; address:text; phone:text}; Err:variant {PaymentFailed:text; InvalidPayload:text; NotFound:text; PaymentCompleted:text}}) query;
+    getClientAppointments: (text) -> (vec record {id:text; status:text; date:text; time:text; service_id:text; client_id:text}) query;
+    getClients: () -> (vec record {id:text; name:text; email:text; address:text; phone:text}) query;
+    getMostPopularClient: () -> (record {id:text; name:text; email:text; address:text; phone:text}) query;
+    getMostPopularService: () -> (record {id:text; duration:nat64; name:text; description:text; price:nat64}) query;
+    getService: (text) -> (variant {Ok:record {id:text; duration:nat64; name:text; description:text; price:nat64}; Err:variant {PaymentFailed:text; InvalidPayload:text; NotFound:text; PaymentCompleted:text}}) query;
+    getServiceAppointments: (text) -> (vec record {id:text; status:text; date:text; time:text; service_id:text; client_id:text}) query;
+    getServiceRevenue: (text, text) -> (nat64) query;
+    getServices: () -> (vec record {id:text; duration:nat64; name:text; description:text; price:nat64}) query;
+    updateAppointment: (record {id:text; status:text; date:text; time:text; service_id:text; client_id:text}) -> (variant {Ok:record {id:text; status:text; date:text; time:text; service_id:text; client_id:text}; Err:variant {PaymentFailed:text; InvalidPayload:text; NotFound:text; PaymentCompleted:text}});
+    updateClient: (record {id:text; name:text; email:text; address:text; phone:text}) -> (variant {Ok:record {id:text; name:text; email:text; address:text; phone:text}; Err:variant {PaymentFailed:text; InvalidPayload:text; NotFound:text; PaymentCompleted:text}});
+    updateService: (record {id:text; duration:nat64; name:text; description:text; price:nat64}) -> (variant {Ok:record {id:text; duration:nat64; name:text; description:text; price:nat64}; Err:variant {PaymentFailed:text; InvalidPayload:text; NotFound:text; PaymentCompleted:text}});
+}
