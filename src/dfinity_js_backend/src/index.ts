@@ -80,122 +80,50 @@ const appointmentStorage = StableBTreeMap(2, text, Appointment)
 
 export default Canister({
     
-    getClients: query([], Vec(Client), () => {
-        return clientsStorage.values();
-    }),
+    // Queries to retrieve entities
+    getClients: query([], Vec(Client), () => clientsStorage.values()),
+    getServices: query([], Vec(Service), () => serviceStorage.values()),
+    getAppointments: query([], Vec(Appointment), () => appointmentStorage.values()),
 
-    getServices: query([], Vec(Service), () => {
-        return serviceStorage.values();
-    }),
+    // Queries to retrieve specific entities by ID
+    getClient: query([text], Result(Client, Message), (id) => Result.fromOption(clientsStorage.get(id), { error: `Client with id=${id} not found` })),
+    getService: query([text], Result(Service, Message), (id) => Result.fromOption(serviceStorage.get(id), { error: `Service with id=${id} not found` })),
+    getAppointment: query([text], Result(Appointment, Message), (id) => Result.fromOption(appointmentStorage.get(id), { error: `Appointment with id=${id} not found` })),
 
-    getAppointments: query([], Vec(Appointment), () => {
-        return appointmentStorage.values();
-    }),
-
-    getClient: query([text], Result(Client, Message), (id) => {
-        const clientOpt = clientsStorage.get(id);
-        if ("None" in clientOpt) {
-            return Err({ NotFound: `Client with id=${id} not found` });
-        }
-        return Ok(clientOpt.Some);
-    }),
-
-    getService: query([text], Result(Service, Message), (id) => {
-        const serviceOpt = serviceStorage.get(id);
-        if ("None" in serviceOpt) {
-            return Err({ NotFound: `Service with id=${id} not found` });
-        }
-        return Ok(serviceOpt.Some);
-    }),
-
-    getAppointment: query([text], Result(Appointment, Message), (id) => {
-        const appointmentOpt = appointmentStorage.get(id);
-        if ("None" in appointmentOpt) {
-            return Err({ NotFound: `Appointment with id=${id} not found` });
-        }
-        return Ok(appointmentOpt.Some);
-    }),
-
-    addClient: update([ClientPayload], Result(Client, Message), (payload) => {
-        if (typeof payload !== "object" || Object.keys(payload).length === 0) {
-            return Err({ NotFound: "invalid payoad" })
-        }
+      addClient: update([ClientPayload], Result(Client, Message), (payload) => {
         const client = { id: uuidv4(), ...payload };
         clientsStorage.insert(client.id, client);
-        return Ok(client);
+        return client;
     }),
-
     addService: update([ServicePayload], Result(Service, Message), (payload) => {
-        if (typeof payload !== "object" || Object.keys(payload).length === 0) {
-            return Err({ NotFound: "invalid payoad" })
-        }
         const service = { id: uuidv4(), ...payload };
         serviceStorage.insert(service.id, service);
-        return Ok(service);
+        return service;
     }),
-
     addAppointment: update([AppointmentPayload], Result(Appointment, Message), (payload) => {
-        if (typeof payload !== "object" || Object.keys(payload).length === 0) {
-            return Err({ NotFound: "invalid payoad" })
-        }
         const appointment = { id: uuidv4(), ...payload };
         appointmentStorage.insert(appointment.id, appointment);
-        return Ok(appointment);
+        return appointment;
     }),
-
-    updateClient: update([Client], Result(Client, Message), (payload) => {
-        const clientOpt = clientsStorage.get(payload.id);
-        if ("None" in clientOpt) {
-            return Err({ NotFound: `cannot update the Client: Client with id=${payload.id} not found` });
-        }
-        clientsStorage.insert(clientOpt.Some.id, payload);
-        return Ok(payload);
+     updateClient: update([Client], Result(Client, Message), (payload) => {
+        clientsStorage.insert(payload.id, payload);
+        return payload;
     }),
-
     updateService: update([Service], Result(Service, Message), (payload) => {
-        const serviceOpt = serviceStorage.get(payload.id);
-        if ("None" in serviceOpt) {
-            return Err({ NotFound: `cannot update the Service: Service with id=${payload.id} not found` });
-        }
-        serviceStorage.insert(serviceOpt.Some.id, payload);
-        return Ok(payload);
+        serviceStorage.insert(payload.id, payload);
+        return payload;
     }),
-
     updateAppointment: update([Appointment], Result(Appointment, Message), (payload) => {
-        const appointmentOpt = appointmentStorage.get(payload.id);
-        if ("None" in appointmentOpt) {
-            return Err({ NotFound: `cannot update the Appointment: Appointment with id=${payload.id} not found` });
-        }
-        appointmentStorage.insert(appointmentOpt.Some.id, payload);
-        return Ok(payload);
+        appointmentStorage.insert(payload.id, payload);
+        return payload;
     }),
 
-
-    deleteClient: update([text], Result(text, Message), (id) => {
-        const deletedClientOpt = clientsStorage.remove(id);
-        if ("None" in deletedClientOpt) {
-            return Err({ NotFound: `cannot delete the Client: Client with id=${id} not found` });
-        }
-        return Ok(deletedClientOpt.Some.id);
-    }),
-
-    deleteService: update([text], Result(text, Message), (id) => {
-        const deletedServiceOpt = serviceStorage.remove(id);
-        if ("None" in deletedServiceOpt) {
-            return Err({ NotFound: `cannot delete the Service: Service with id=${id} not found` });
-        }
-        return Ok(deletedServiceOpt.Some.id);
-    }),
-
-
-    deleteAppointment: update([text], Result(text, Message), (id) => {
-        const deletedAppointmentOpt = appointmentStorage.remove(id);
-        if ("None" in deletedAppointmentOpt) {
-            return Err({ NotFound: `cannot delete the Appointment: Appointment with id=${id} not found` });
-        }
-        return Ok(deletedAppointmentOpt.Some.id);
-    }),
-
+    // delete client
+    deleteClient: update([text], Result(text, Message), (id) => Result.fromOption(clientsStorage.remove(id), { error: `Cannot delete the Client: Client with id=${id} not found` })),
+    // delete service
+    deleteService: update([text], Result(text, Message), (id) => Result.fromOption(serviceStorage.remove(id), { error: `Cannot delete the Service: Service with id=${id} not found` })),
+    // delete appointment
+    deleteAppointment: update([text], Result(text, Message), (id) => Result.fromOption(appointmentStorage.remove(id), { error: `Cannot delete the Appointment: Appointment with id=${id} not found` })),
     
     // get all the appointments for a given client id
     getClientAppointments: query([text], Vec(Appointment), (clientId) => {
